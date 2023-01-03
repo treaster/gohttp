@@ -62,6 +62,10 @@ func main() {
 	var defaultIndex string
 	flag.StringVar(&defaultIndex, "default-index", "index.html", "default filename for an index HTML file")
 
+	// Define either this, or the following two cert flags.
+	var certName string
+	flag.StringVar(&certName, "certname", "", "Filepath TLS certs, minus the .crt and .key file extension. These will be added automatically.")
+
 	var certFile string
 	flag.StringVar(&certFile, "certfile", "", "Filepath to server file for TLS.")
 
@@ -72,10 +76,20 @@ func main() {
 	fmt.Println("--dir:", dir)
 	fmt.Println("--port:", port)
 	fmt.Println("--default-index:", defaultIndex)
+	fmt.Println("--certname:", certName)
 	fmt.Println("--certfile:", certFile)
 	fmt.Println("--keyfile:", keyFile)
 
 	var err error
+	if certName != "" {
+		if keyFile != "" || certFile != "" {
+			log.Fatal(fmt.Errorf("--certname is mutually exclusive with --certfile and --keyfile. (--certname=%q, --certfile=%q, --keyfile=%q)", certName, certFile, keyFile))
+		}
+
+		certFile = fmt.Sprintf("%s.crt", certName)
+		keyFile = fmt.Sprintf("%s.key", certName)
+	}
+
 	if keyFile != "" && certFile != "" {
 		err = http.ListenAndServeTLS(
 			fmt.Sprintf(":%d", port),
