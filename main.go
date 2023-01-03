@@ -62,16 +62,38 @@ func main() {
 	var defaultIndex string
 	flag.StringVar(&defaultIndex, "default-index", "index.html", "default filename for an index HTML file")
 
-	flag.Parse()
-	fmt.Println("serve dir:", dir)
-	fmt.Println("server port:", port)
-	fmt.Println("default index:", defaultIndex)
+	var certFile string
+	flag.StringVar(&certFile, "certfile", "", "Filepath to server file for TLS.")
 
-	log.Fatal(
-		http.ListenAndServe(
+	var keyFile string
+	flag.StringVar(&keyFile, "keyfile", "", "Filepath to key file for TLS.")
+
+	flag.Parse()
+	fmt.Println("--dir:", dir)
+	fmt.Println("--port:", port)
+	fmt.Println("--default-index:", defaultIndex)
+	fmt.Println("--certfile:", certFile)
+	fmt.Println("--keyfile:", keyFile)
+
+	var err error
+	if keyFile != "" && certFile != "" {
+		err = http.ListenAndServeTLS(
+			fmt.Sprintf(":%d", port),
+			certFile,
+			keyFile,
+			Handler{
+				dir,
+				defaultIndex,
+			})
+	} else if keyFile != "" || certFile != "" {
+		err = fmt.Errorf("Both --certfile and --keyfile must be set together, or unset together. (--certfile=%q, --keyfile=%q)", certFile, keyFile)
+	} else {
+		err = http.ListenAndServe(
 			fmt.Sprintf(":%d", port),
 			Handler{
 				dir,
 				defaultIndex,
-			}))
+			})
+	}
+	log.Fatal(err)
 }
