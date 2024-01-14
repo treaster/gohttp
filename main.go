@@ -6,8 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Handler struct {
@@ -24,8 +26,12 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	urlPath := req.URL.Path
-	if urlPath == "/" {
-		urlPath = h.defaultIndex
+	if strings.HasSuffix(urlPath, "/") {
+		var err error
+		urlPath, err = url.JoinPath(urlPath, h.defaultIndex)
+		if err != nil {
+			panic(err.Error())
+		}
 	}
 	finalPath := filepath.Join(h.dirRoot, urlPath)
 	fmt.Println(req.Method, finalPath)
