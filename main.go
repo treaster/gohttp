@@ -26,7 +26,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	urlPath := req.URL.Path
-	if strings.HasSuffix(urlPath, "/") {
+	if strings.HasSuffix(urlPath, "/") || filepath.Ext(urlPath) == "" {
 		var err error
 		urlPath, err = url.JoinPath(urlPath, h.defaultIndex)
 		if err != nil {
