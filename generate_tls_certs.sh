@@ -5,7 +5,7 @@
 
 certname=localhost
 if [ $# == 0 ]; then
-    echo 'Using default certname "$certname". Override with "$0 [certname]".'
+    echo "Using default certname '$certname'. Override with '$0 [certname]'."
 elif [ $# == 1 ]; then
     certname="$1"; shift
 else
