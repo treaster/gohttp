@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euxo pipefail
+
 if [ $# != 1 ]; then
     echo "usage: $(basename $0) [directory to serve]"
     exit 1
@@ -10,9 +12,9 @@ cert_dir=/tmp/gohttp
 
 relative_serve_dir=$1; shift
 full_serve_dir="$(pwd)/${relative_serve_dir}"
-full_script_dir="$(pwd)/${relative_script_dir}"
 
-cd "${full_script_dir}"
+cd "${relative_script_dir}"
+full_script_dir="$(pwd)"
 
 if [ ! -f "${cert_dir}/localhost.crt" ]; then
     echo "generating new certs in ${cert_dir}..."
